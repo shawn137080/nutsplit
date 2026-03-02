@@ -41,8 +41,15 @@ _MEMBER_COL_START = 10  # dynamic member columns begin here
 # ---------------------------------------------------------------------------
 
 
-def _get_service():  # type: ignore[return]
-    """Return an authenticated Google Sheets API service."""
+_service_cache: Any = None
+
+
+def _get_service() -> Any:
+    """Return a cached authenticated Google Sheets API service."""
+    global _service_cache
+    if _service_cache is not None:
+        return _service_cache
+
     credentials_file: str = os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json")
     token_file: str = os.getenv("GOOGLE_TOKEN_FILE", "token.pickle")
 
@@ -53,16 +60,21 @@ def _get_service():  # type: ignore[return]
         with open(credentials_file, "r", encoding="utf-8") as fh:
             cred_data: dict = json.load(fh)
         if cred_data.get("type") == "service_account":
-            # --- Service account path ---
             sa_creds = service_account.Credentials.from_service_account_file(
                 credentials_file, scopes=SCOPES
             )
-            return build("sheets", "v4", credentials=sa_creds)
+            _service_cache = build("sheets", "v4", credentials=sa_creds)
+            return _service_cache
 
     # --- OAuth path ---
     if os.path.exists(token_file):
         with open(token_file, "rb") as fh:
-            creds = pickle.load(fh)
+            try:
+                loaded = pickle.load(fh)
+                if hasattr(loaded, "valid"):
+                    creds = loaded
+            except Exception:
+                creds = None  # corrupted pickle — re-authenticate
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -78,7 +90,8 @@ def _get_service():  # type: ignore[return]
         with open(token_file, "wb") as fh:
             pickle.dump(creds, fh)
 
-    return build("sheets", "v4", credentials=creds)
+    _service_cache = build("sheets", "v4", credentials=creds)
+    return _service_cache
 
 
 # ---------------------------------------------------------------------------
@@ -525,7 +538,11 @@ def get_next_expense_id(sheet_id: str, month_label: str) -> str:
         return "EXP-001"
 
     header_row: list = list(values[0])
-    exp_id_col: int = _find_exp_id_col(header_row, [])
+    # Always scan the header for "Expense ID" column position
+    exp_id_col: int = next(
+        (i for i, c in enumerate(header_row) if str(c) == "Expense ID"),
+        len(header_row),  # not found → no expenses with IDs
+    )
 
     found_nums: list = []
     data_rows: list = list(values[1:])
@@ -625,7 +642,13 @@ def delete_expense_row(
     """
     service = _get_service()
 
-    if not _tab_exists(service, sheet_id, month_label):
+    # Fetch tab metadata once — avoids 3 separate spreadsheets().get() calls
+    tabs = _get_sheet_tabs(service, sheet_id)
+    tab_gid: int | None = next(
+        (int(t["properties"]["sheetId"]) for t in tabs if t["properties"]["title"] == month_label),
+        None,
+    )
+    if tab_gid is None:
         raise ValueError(f"Tab '{month_label}' not found in sheet {sheet_id}.")
 
     values: list = _read_tab_values(service, sheet_id, month_label)
@@ -633,8 +656,10 @@ def delete_expense_row(
         return False
 
     header_row: list = list(values[0])
-    exp_id_col: int = _find_exp_id_col(header_row, [])
-    # If "Expense ID" column not found, can't locate the row
+    exp_id_col: int = next(
+        (i for i, c in enumerate(header_row) if str(c) == "Expense ID"),
+        len(header_row),
+    )
     if exp_id_col >= len(header_row):
         return False
 
@@ -648,11 +673,6 @@ def delete_expense_row(
 
     if target_row_index == 0:
         return False
-
-    tab_gid_or_none = _get_sheet_id_by_title(service, sheet_id, month_label)
-    if tab_gid_or_none is None:
-        raise ValueError(f"Tab '{month_label}' not found in sheet {sheet_id}.")
-    tab_gid: int = tab_gid_or_none
 
     start_index: int = target_row_index - 1  # convert 1-based → 0-based
 
