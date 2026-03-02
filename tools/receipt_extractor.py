@@ -1,7 +1,9 @@
 """Gemini Vision receipt data extractor."""
 
 import json
+import logging
 import time
+from datetime import datetime
 
 from google import genai
 from google.genai import types
@@ -147,7 +149,8 @@ def extract_receipt(image_bytes: bytes, mime_type: str = "image/jpeg") -> dict:
         try:
             raw = _call_gemini(image_bytes, mime_type)
             return _normalize(raw)
-        except Exception:
+        except Exception as exc:
+            logging.warning("Receipt extraction attempt %d failed: %s", attempt + 1, exc, exc_info=True)
             if attempt == 0:
                 time.sleep(2)
             else:
@@ -190,7 +193,6 @@ def format_extraction_for_display(data: dict) -> str:
     date_str = "\u2014"
     if date_raw:
         try:
-            from datetime import datetime
             dt = datetime.strptime(date_raw, "%Y-%m-%d")
             date_str = dt.strftime("%b %-d, %Y")
         except ValueError:
