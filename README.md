@@ -1,70 +1,196 @@
 # auto_split — Household Expense Tracker Bot
 
-Telegram bot for splitting shared household expenses. Send a receipt photo, the bot extracts the data with AI, you choose how to split it — all stored locally in SQLite. No Google account needed.
+Telegram bot for splitting shared household expenses. Send a receipt photo, the bot extracts the data with AI, you choose how to split it — all stored locally in SQLite.
 
-## Quick Start
+---
+
+## Local Development Setup
+
+### Step 1 — Clone and install
 
 ```bash
-git clone <repo>
-cd auto_split
+git clone https://github.com/<your-username>/open_split.git
+cd open_split
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # fill in your token and API key
-python3 main.py
 ```
 
-Then open Telegram, message your bot `/start`, and follow the setup steps.
+### Step 2 — Configure environment
 
-## Requirements
+```bash
+cp .env.example .env
+```
 
-| Variable | Description |
-|----------|-------------|
-| `TELEGRAM_TOKEN` | From [@BotFather](https://t.me/botfather) |
-| `GEMINI_API_KEY` | From [Google AI Studio](https://aistudio.google.com/app/apikey) (for receipt OCR) |
-| `DATABASE_PATH` | *(optional)* Path to SQLite DB file. Default: `auto_split.db` |
+Edit `.env`:
+
+```env
+TELEGRAM_TOKEN=your_telegram_bot_token   # from @BotFather
+GEMINI_API_KEY=your_gemini_api_key       # from aistudio.google.com
+DATABASE_PATH=auto_split.db              # local path, default is fine
+```
+
+### Step 3 — Run
+
+```bash
+python main.py
+```
+
+Open Telegram, send `/start` to your bot, and follow the onboarding steps.
+
+> ⚠️ **Do not run locally if the VPS bot is already running** — Telegram only allows one polling instance per token. Two instances will cause a `409 Conflict` error.
+
+---
+
+## VPS Deployment (Docker)
+
+### Prerequisites
+
+- VPS with Docker + Docker Compose installed
+- SSH root access
+- GitHub repo with your code pushed
+
+### Step 1 — Clone repo on server
+
+```bash
+ssh root@<your-vps-ip>
+git clone https://github.com/<your-username>/open_split.git /opt/open_split
+cd /opt/open_split
+```
+
+### Step 2 — Configure environment on server
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+```env
+TELEGRAM_TOKEN=your_telegram_bot_token
+GEMINI_API_KEY=your_gemini_api_key
+DATABASE_PATH=/app/data/auto_split.db   # ← must use this path for persistent storage
+```
+
+> ⚠️ Always use `DATABASE_PATH=/app/data/auto_split.db` on the VPS.  
+> This stores your database inside a Docker named volume that survives git pulls and container rebuilds.
+
+### Step 3 — Start the bot
+
+```bash
+docker compose up -d --build
+docker compose logs bot --tail=20
+```
+
+You should see:
+```
+Database initialized.
+SplitBot starting — polling for updates...
+```
+
+---
+
+## Migrate Local DB to VPS
+
+If you have data in your local `auto_split.db` and want to move it to the server:
+
+**1. Upload from your local machine:**
+
+```bash
+scp auto_split.db root@<your-vps-ip>:/tmp/auto_split.db
+```
+
+**2. Copy into the Docker volume (on the server):**
+
+```bash
+VOLUME_PATH=$(docker volume inspect open_split_bot_data --format '{{.Mountpoint}}')
+cp /tmp/auto_split.db "$VOLUME_PATH/auto_split.db"
+```
+
+**3. Restart the bot:**
+
+```bash
+cd /opt/open_split && docker compose restart bot
+```
+
+---
+
+## Deploying Updates
+
+From your local machine, run:
+
+```bash
+./deploy.sh "describe your changes"
+```
+
+This script automatically:
+1. Commits and pushes all local changes to GitHub
+2. SSHs into the server and pulls the latest code
+3. Rebuilds the Docker image and restarts the bot
+
+> Data is safe — the database lives in a Docker volume, completely separate from the code.
+
+---
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/start` | Set up or re-run household onboarding |
-| `/add` | Guided expense entry (step-by-step) |
-| `/expense "desc" amount name [split]` | Quick one-line expense entry |
-| `/summary [month]` | Balance + settlement for a month |
-| `/history [month]` | Full expense list for a month |
-| `/last` | Show the most recent expense |
-| `/settle <name> <amount>` | Record a settlement payment |
-| `/delete <expense_id>` | Delete an expense |
-| `/export [month] [year]` | Download expenses as a CSV file |
-| `/cancel` | Cancel any in-progress flow |
+| `/start` | Household onboarding |
+| `/add` | Guided expense entry |
+| `/expense "desc" amount name [split]` | Quick one-line entry |
+| `/summary [month]` | Balance + settlement |
+| `/history [month]` | Full expense list |
+| `/records` | Monthly overview by month |
+| `/last` | Most recent expense |
+| `/settle <name> <amount>` | Record a payment |
+| `/edit <id> amount <value>` | Edit an expense |
+| `/delete <id>` | Delete an expense |
+| `/export [month]` | Download CSV |
+| `/add_fixed` | Add a recurring fixed expense |
+| `/fixedexp` | Manage fixed expenses |
+| `/settings` | Household settings |
+| `/cancel` | Cancel current flow |
 | `/help` | Show all commands |
 
-**Receipt scanning:** Just send a photo — the bot handles the rest.
+---
 
-## Features
+## Environment Variables
 
-- 📷 Receipt OCR via Gemini Vision (extracts merchant, date, items, taxes, tip)
-- ✂️ Flexible splits: equal, individual, by item, or custom
-- 📊 Real-time balance calculation
-- 📅 Fixed monthly expenses (auto-seeded each month)
-- 📁 `/export` — generates a `.csv` file with full expense history
-- 🏠 Multi-household (each Telegram group is an independent household)
-- 🗄️ Local SQLite — no external services beyond Telegram + Gemini
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `TELEGRAM_TOKEN` | ✅ | From [@BotFather](https://t.me/botfather) |
+| `GEMINI_API_KEY` | ✅ | From [Google AI Studio](https://aistudio.google.com/app/apikey) |
+| `DATABASE_PATH` | optional | Default: `auto_split.db`. Use `/app/data/auto_split.db` on VPS |
+
+### OCR Model
+
+Receipt scanning uses **Gemini 2.5 Flash** (`gemini-2.5-flash`) via the Gemini API.
+
+**Free tier limits** (no credit card required):
+- 1,500 requests/day
+- 10 requests/minute
+
+This is more than enough for household use. Get your key at [aistudio.google.com](https://aistudio.google.com/app/apikey).
+
+---
 
 ## Architecture
 
 ```
-main.py                   # Bot entry point, handler registration
-database.py               # SQLite schema + CRUD helpers
+main.py                   # Entry point, all handler registration
+database.py               # SQLite schema + CRUD
 config.py                 # Env var loading
 tools/
-  expense_store.py        # Storage layer (wraps database.py)
+  expense_store.py        # Storage layer
   balance_calculator.py   # Balance & settlement math
   receipt_extractor.py    # Gemini Vision OCR
-  input_parser.py         # Text parsing helpers
+  tax_rates.py            # Tax/tip helpers
 workflows/
-  onboarding_flow.py      # /start setup wizard
-  manual_expense_flow.py  # /add and /expense flows
-  receipt_flow.py         # Photo receipt flow
-  summary_flow.py         # /summary, /history, /last, /settle, /delete
-  export_flow.py          # /export CSV generation
+  onboarding_flow.py      # /start
+  manual_expense_flow.py  # /add, /expense
+  receipt_flow.py         # Photo receipt scanning
+  summary_flow.py         # /summary, /history, /last, /settle, /edit, /delete
+  records_flow.py         # /records
+  settings_flow.py        # /settings
+  fixed_expense_flow.py   # /add_fixed, /fixedexp
+  export_flow.py          # /export
 ```
