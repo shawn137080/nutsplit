@@ -28,6 +28,32 @@ Telegram bot for splitting shared household expenses. Send a receipt photo → A
 
 ---
 
+## 🚀 Deploy
+
+### Option 1 — Railway (one-click, recommended)
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/shawn137080/open_split)
+
+1. Click the button above
+2. Set **2 environment variables**:
+   - `TELEGRAM_TOKEN` — from [@BotFather](https://t.me/BotFather)
+   - `GEMINI_API_KEY` — from [aistudio.google.com](https://aistudio.google.com/)
+3. Click **Deploy** — done ✅
+
+> Free tier is enough to run this bot. Railway gives $5/month free credit.
+
+---
+
+### Option 2 — Docker (any VPS)
+
+```bash
+git clone https://github.com/shawn137080/open_split.git && cd open_split
+cp .env.example .env   # fill in your tokens
+docker compose up -d
+```
+
+---
+
 ## Local Development Setup
 
 ### Step 1 — Clone and install
