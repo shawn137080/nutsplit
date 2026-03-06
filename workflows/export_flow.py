@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional
 
 import pytz
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import database
@@ -172,6 +172,27 @@ async def handle_export_command(
     currency: str = group.get("currency") or "CAD"
 
     args: list[str] = list(context.args) if context.args else []
+
+    # No args → show month picker
+    if not args:
+        current = _current_month_label(timezone)
+        months_with_data = [
+            m["month_label"]
+            for m in database.get_all_months_summary(group_id)
+            if m["month_label"] != current
+        ][:5]
+        rows = [[InlineKeyboardButton(
+            f"📅 {current} (this month)",
+            callback_data=f"mp:exp:{current}",
+        )]]
+        for ml in months_with_data:
+            rows.append([InlineKeyboardButton(ml, callback_data=f"mp:exp:{ml}")])
+        await update.effective_message.reply_text(
+            "📁 Which month to export?",
+            reply_markup=InlineKeyboardMarkup(rows),
+        )
+        return
+
     month_label: Optional[str] = _parse_month_label(args, timezone)
 
     if month_label is None:

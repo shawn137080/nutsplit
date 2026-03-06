@@ -14,3 +14,6 @@ def _require(key: str) -> str:
 TELEGRAM_TOKEN = _require("TELEGRAM_TOKEN")
 GEMINI_API_KEY = _require("GEMINI_API_KEY")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "auto_split.db")
+
+# Pro tier: set PRO_LICENSE_KEY to any non-empty string to enable Pro features
+IS_PRO = bool(os.getenv("PRO_LICENSE_KEY"))

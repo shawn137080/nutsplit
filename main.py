@@ -21,7 +21,9 @@ from telegram.ext import (
 )
 
 import database
-from config import TELEGRAM_TOKEN
+from config import IS_PRO, TELEGRAM_TOKEN
+from pro.stats_flow import handle_stats_command
+from pro.budget_flow import handle_budget_command
 from workflows.manual_expense_flow import (
     handle_add_callback,
     handle_add_command,
@@ -51,6 +53,7 @@ from workflows.summary_flow import (
     handle_history_command,
     handle_last_command,
     handle_multisummary_command,
+    handle_owe_command,
     handle_settle_command,
     handle_summary_command,
 )
@@ -128,6 +131,7 @@ _HELP_TEXT = (
     "/summary [feb] — balance + settlement\n"
     "/history [feb] — expense list\n"
     "/last [feb] — most recent expense\n"
+    "/owe — who owes whom right now\n"
     "/records — monthly overview\n"
     "\n"
     "<b>Manage</b>\n"
@@ -139,6 +143,10 @@ _HELP_TEXT = (
     "<b>Fixed Expenses</b>\n"
     "/add_fixed — add a recurring monthly expense\n"
     "/fixedexp — view & manage fixed expenses\n"
+    "\n"
+    "<b>Pro features</b>\n"
+    "/stats — spending trends (⭐ Pro)\n"
+    "/budget — category budget limits (⭐ Pro)\n"
     "\n"
     "<b>Setup</b>\n"
     "/start — household onboarding\n"
@@ -335,14 +343,21 @@ def main() -> None:
     app.add_handler(CommandHandler("settings", handle_settings_command))
 
     # --- Reports ---
-    app.add_handler(CommandHandler("summary", handle_summary_command))
-    app.add_handler(CommandHandler("history", handle_history_command))
-    app.add_handler(CommandHandler("last", handle_last_command))
-    app.add_handler(CommandHandler("settle", handle_settle_command))
-    app.add_handler(CommandHandler("delete", handle_delete_command))
-    app.add_handler(CommandHandler("edit", handle_edit_command))
-    app.add_handler(CommandHandler("export", handle_export_command))
-    app.add_handler(CommandHandler("records", handle_records_command))
+    app.add_handler(CommandHandler("summary",  handle_summary_command))
+    app.add_handler(CommandHandler("history",  handle_history_command))
+    app.add_handler(CommandHandler("last",     handle_last_command))
+    app.add_handler(CommandHandler("owe",      handle_owe_command))
+    app.add_handler(CommandHandler("settle",   handle_settle_command))
+    app.add_handler(CommandHandler("delete",   handle_delete_command))
+    app.add_handler(CommandHandler("edit",     handle_edit_command))
+    app.add_handler(CommandHandler("export",   handle_export_command))
+    app.add_handler(CommandHandler("records",  handle_records_command))
+
+    # --- Pro features ---
+    async def _stats(u, c): await handle_stats_command(u, c, is_pro=IS_PRO)
+    async def _budget(u, c): await handle_budget_command(u, c, is_pro=IS_PRO)
+    app.add_handler(CommandHandler("stats",  _stats))
+    app.add_handler(CommandHandler("budget", _budget))
 
     # --- Photo (receipt scanning) ---
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
@@ -360,6 +375,7 @@ def main() -> None:
             BotCommand("add",       "Guided expense entry"),
             BotCommand("summary",   "Balance & settlement [month]"),
             BotCommand("history",   "Expense list [month]"),
+            BotCommand("owe",       "Quick: who owes whom"),
             BotCommand("records",   "Monthly overview"),
             BotCommand("last",      "Most recent expense"),
             BotCommand("settle",    "Record a payment"),
@@ -368,6 +384,8 @@ def main() -> None:
             BotCommand("export",    "Download CSV [month]"),
             BotCommand("add_fixed", "Add recurring fixed expense"),
             BotCommand("fixedexp",  "Manage fixed expenses"),
+            BotCommand("stats",     "Spending trends ⭐ Pro"),
+            BotCommand("budget",    "Category budgets ⭐ Pro"),
             BotCommand("settings",  "Household settings"),
             BotCommand("start",     "Household onboarding"),
             BotCommand("help",      "Show all commands"),

@@ -206,6 +206,51 @@ def _format_expense_row(expense: dict, currency: str = "CAD") -> str:
 # ---------------------------------------------------------------------------
 
 
+async def handle_owe_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /owe — show quick one-line balance for the current month."""
+    if update.effective_chat is None or update.effective_message is None:
+        return
+
+    group_id: str = str(update.effective_chat.id)
+    group: Optional[dict] = database.get_group(group_id)
+    if group is None:
+        await update.effective_message.reply_text(
+            "Please run /start first to set up your household."
+        )
+        return
+
+    timezone: str = group.get("timezone") or "America/Toronto"
+    currency: str = group.get("currency") or "CAD"
+    month_label = _current_month_label(timezone)
+
+    members_data = database.get_members(group_id)
+    member_names = [m["name"] for m in members_data]
+    get_or_create_month(group_id, month_label, member_names, [])
+
+    expenses = database.get_expenses(group_id, month_label)
+    balances = calculate_balances(expenses, member_names)
+    transfers = compute_settlement(balances)
+
+    if not transfers:
+        await update.effective_message.reply_text(
+            f"✅ <b>All settled up!</b> ({month_label})", parse_mode="HTML"
+        )
+        return
+
+    sym = "$"
+    lines = [f"💸 <b>Who owes whom</b> — {month_label}\n"]
+    for t in transfers:
+        lines.append(
+            f"  {t['from']} → {t['to']}  <b>{sym}{t['amount']:.2f} {currency}</b>"
+        )
+    lines.append("\nUse /settle to record a payment.")
+    await update.effective_message.reply_text("\n".join(lines), parse_mode="HTML")
+
+
+
 async def handle_summary_command(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
