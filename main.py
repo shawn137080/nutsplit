@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 
-from telegram import Update
+from telegram import BotCommand, Update
 from telegram.ext import (
     Application,
     CallbackQueryHandler,
@@ -321,6 +321,27 @@ def main() -> None:
 
     # --- Inline keyboard callbacks (flow router) ---
     app.add_handler(CallbackQueryHandler(_route_callback))
+
+    async def _set_commands(application: Application) -> None:
+        await application.bot.set_my_commands([
+            BotCommand("add",       "Guided expense entry"),
+            BotCommand("summary",   "Balance & settlement [month]"),
+            BotCommand("history",   "Expense list [month]"),
+            BotCommand("records",   "Monthly overview"),
+            BotCommand("last",      "Most recent expense"),
+            BotCommand("settle",    "Record a payment"),
+            BotCommand("edit",      "Edit an expense"),
+            BotCommand("delete",    "Delete an expense"),
+            BotCommand("export",    "Download CSV [month]"),
+            BotCommand("add_fixed", "Add recurring fixed expense"),
+            BotCommand("fixedexp",  "Manage fixed expenses"),
+            BotCommand("settings",  "Household settings"),
+            BotCommand("start",     "Household onboarding"),
+            BotCommand("help",      "Show all commands"),
+            BotCommand("cancel",    "Cancel current flow"),
+        ])
+
+    app.post_init = _set_commands
 
     logger.info("SplitBot starting — polling for updates...")
     app.run_polling(allowed_updates=["message", "callback_query"])
