@@ -224,6 +224,7 @@ body {
   animation: float 4s ease-in-out infinite;
   z-index: 2;
   margin-bottom: -20px;
+  mix-blend-mode: multiply;
 }
 
 @keyframes float {
