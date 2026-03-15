@@ -76,22 +76,23 @@ def get_next_expense_id(group_id: str, month_label: str) -> str:
     return database.get_next_expense_id(group_id, month_label)
 
 
-def delete_expense(group_id: str, expense_id: str) -> bool:
+def delete_expense(group_id: str, month_label: str, expense_id: str) -> bool:
     """
-    Delete the expense with the given ID. Returns True if deleted, False if not found.
+    Delete the expense with the given ID and month. Returns True if deleted, False if not found.
     """
-    return database.delete_expense(group_id, expense_id)
+    return database.delete_expense(group_id, month_label, expense_id)
 
 
 def update_expense(
     group_id: str,
+    month_label: str,
     expense_id: str,
     updated_expense: dict,
 ) -> bool:
     """
     Update an existing expense row. Returns True if found and updated.
     """
-    return database.update_expense(group_id, expense_id, updated_expense)
+    return database.update_expense(group_id, month_label, expense_id, updated_expense)
 
 
 def has_expenses_for_month(group_id: str, month_label: str) -> bool:

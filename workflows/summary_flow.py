@@ -721,7 +721,7 @@ async def handle_delete_command(
         return
 
     try:
-        deleted: bool = database.delete_expense(group_id, expense_id)
+        deleted: bool = database.delete_expense(group_id, month_label, expense_id)
         if not deleted:
             await update.effective_message.reply_text(
                 f"⚠️ Could not delete <b>{html.escape(expense_id)}</b>. Please try again.",
@@ -780,7 +780,8 @@ async def handle_edit_command(
             "  <code>desc</code>     — e.g. /edit EXP-003 desc Groceries run\n"
             "  <code>category</code> — e.g. /edit EXP-003 category Dining\n"
             "  <code>payer</code>    — e.g. /edit EXP-003 payer Mike\n"
-            "  <code>date</code>     — e.g. /edit EXP-003 date 2026-03-15\n\n"
+            "  <code>date</code>     — e.g. /edit EXP-003 date 2026-03-15\n"
+            "  <code>split</code>    — e.g. /edit EXP-003 split 50/50 or '1 mike'\n\n"
             "Use /history to see expense IDs.",
             parse_mode="HTML",
         )
@@ -873,15 +874,35 @@ async def handle_edit_command(
             )
             return
 
+    elif field in ("split", "shares"):
+        from tools.balance_calculator import parse_member_shares
+        members_data = database.get_members(group_id)
+        member_names: list[str] = [m["name"] for m in members_data]
+        sender_name: str = update.effective_user.first_name if update.effective_user else "Unknown"
+        
+        try:
+            shares = parse_member_shares(
+                raw_text=value,
+                members=member_names,
+                items=[],
+                total=float(updated.get("total", 0.0)),
+                sender_name=sender_name,
+            )
+            updated["member_shares"] = shares
+        except Exception as exc:
+            logger.exception("Error parsing split: %s", exc)
+            await update.effective_message.reply_text("Error parsing split. Please check the format.")
+            return
+
     else:
         await update.effective_message.reply_text(
             f"⚠️ Unknown field: <b>{html.escape(field)}</b>\n"
-            "Valid fields: amount, desc, category, payer, date",
+            "Valid fields: amount, desc, category, payer, date, split",
             parse_mode="HTML",
         )
         return
 
-    ok: bool = database.update_expense(group_id, expense_id, updated)
+    ok: bool = database.update_expense(group_id, found_month, expense_id, updated)
     if not ok:
         await update.effective_message.reply_text("Error updating expense. Please try again.")
         return

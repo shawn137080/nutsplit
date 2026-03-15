@@ -661,14 +661,13 @@ def get_expenses(
         result.append(d)
     return result
 
-
-def delete_expense(group_id: str, expense_id: str) -> bool:
-    """Delete an expense by ID. Returns True if a row was deleted."""
+def delete_expense(group_id: str, month_label: str, expense_id: str) -> bool:
+    """Delete an expense by ID and month. Returns True if a row was deleted."""
     conn = _connect()
     try:
         cursor = conn.execute(
-            "DELETE FROM expenses WHERE group_id = ? AND expense_id = ?",
-            (group_id, expense_id),
+            "DELETE FROM expenses WHERE group_id = ? AND month_label = ? AND expense_id = ?",
+            (group_id, month_label, expense_id),
         )
         conn.commit()
         deleted: bool = cursor.rowcount > 0
@@ -676,8 +675,7 @@ def delete_expense(group_id: str, expense_id: str) -> bool:
         conn.close()
     return deleted
 
-
-def update_expense(group_id: str, expense_id: str, updated: dict) -> bool:
+def update_expense(group_id: str, month_label: str, expense_id: str, updated: dict) -> bool:
     """Update an existing expense. Returns True if found and updated."""
     member_shares_json: str = json.dumps(updated.get("member_shares") or {})
     conn = _connect()
@@ -697,7 +695,7 @@ def update_expense(group_id: str, expense_id: str, updated: dict) -> bool:
                 paid_by       = ?,
                 member_shares = ?,
                 notes         = ?
-            WHERE group_id = ? AND expense_id = ?
+            WHERE group_id = ? AND month_label = ? AND expense_id = ?
             """,
             (
                 updated.get("date", ""),
@@ -713,6 +711,7 @@ def update_expense(group_id: str, expense_id: str, updated: dict) -> bool:
                 member_shares_json,
                 updated.get("notes", ""),
                 group_id,
+                month_label,
                 expense_id,
             ),
         )
