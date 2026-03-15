@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "nutsplit-landing",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/landing/$1" }
+  ]
+}
