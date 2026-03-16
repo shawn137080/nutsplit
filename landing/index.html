@@ -92,6 +92,18 @@
           <p>Equal, mine-only, custom %, or "A pays for B" — every scenario covered.</p>
         </div>
         <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <span class="new-badge">New</span>
+          <h3>Multilingual</h3>
+          <p>Support for English, 繁體中文, and 简体中文. Speak your language.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎭</div>
+          <span class="new-badge">New</span>
+          <h3>AI Personality</h3>
+          <p>Choose Pip's vibe. From Gen Z slang to Professional — make it yours.</p>
+        </div>
+        <div class="feature-card">
           <div class="feature-icon">📊</div>
           <h3>Monthly Summary</h3>
           <p>See exactly who owes whom at a glance. One command, instant clarity.</p>
@@ -102,14 +114,15 @@
           <p>Set rent, utilities, subscriptions once. Auto-seeded every month.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📁</div>
-          <h3>CSV Export</h3>
-          <p>Download monthly expense reports for budgeting or tax records.</p>
+          <div class="feature-icon">🗄️</div>
+          <span class="new-badge">New</span>
+          <h3>Backup Channels</h3>
+          <p>Seamlessly sync all records to a private Telegram channel for safety.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
-          <h3>Private by Design</h3>
-          <p>Data stays in your group. Self-hosted means only you control it.</p>
+          <h3>Privacy First</h3>
+          <p>Your data stays in your household. Pro users enjoy secure cloud backups.</p>
         </div>
       </div>
     </div>
@@ -153,7 +166,7 @@
           </tr>
           <tr>
             <td>Data Hosting</td>
-            <td>✅ Self-hosted / User controlled</td>
+            <td>✅ Secure Cloud / Managed VPS</td>
             <td>❌ Standard SaaS Cloud</td>
           </tr>
         </tbody>
@@ -206,42 +219,45 @@
 
         <!-- FREE TIER -->
         <div class="plan-card">
-          <div class="plan-name">Self-Hosted</div>
+          <div class="plan-name">Free Tier</div>
           <div class="plan-price">Free <span>forever</span></div>
-          <div class="plan-desc">Full source code on GitHub. Deploy on Railway or your own VPS.</div>
+          <div class="plan-desc">A powerful entry-point for small households or light testing.</div>
           <ul class="plan-features">
-            <li>✅ Expense tracking &amp; splitting</li>
-            <li>✅ Receipt OCR (Gemini Flash)</li>
-            <li>✅ Fixed recurring expenses</li>
-            <li>✅ CSV export</li>
-            <li>✅ Monthly summaries</li>
+            <li>✅ 📸 <b>5</b> AI Receipt Scans /mo</li>
+            <li>✅ 📝 <b>8</b> Manual Entries /mo</li>
+            <li>✅ 📌 <b>3</b> Fixed Monthly Items</li>
             <li>✅ Unlimited members</li>
-            <li class="dim">— /stats trends</li>
-            <li class="dim">— Budget alerts</li>
-            <li class="dim">— Cloud backup</li>
-            <li class="dim">— Zero-ops hosting</li>
+            <li>✅ Monthly balances</li>
+            <li>✅ Reset on the 1st of every month</li>
+            <li class="dim">— /stats spending trends</li>
+            <li class="dim">— /budget category limits</li>
+            <li class="dim">— CSV/Excel Exports</li>
           </ul>
-          <a href="https://railway.app/new/template?template=https://github.com/shawn137080/open_split"
-            class="btn-outline" target="_blank">Deploy on Railway →</a>
+          <a href="https://t.me/NutSplitBot?start=landing"
+            class="btn-outline">Start for free →</a>
         </div>
 
         <!-- PRO TIER -->
         <div class="plan-card plan-pro">
           <div class="plan-badge">Most Popular</div>
           <div class="plan-name">NutSplit Pro</div>
-          <div class="plan-price">$2.99 <span>/ month</span></div>
-          <div class="plan-desc">The official hosted service. Intelligent, automated, and always online.</div>
+          <div class="plan-price">$4.99 <span>/ month</span></div>
+          <div class="plan-desc">The ultimate expense companion. Unlimited, intelligent, and automated.</div>
           <ul class="plan-features">
-            <li>✅ Everything in Free</li>
-            <li>✅ <b>/stats</b> — spending trends</li>
-            <li>✅ <b>/budget</b> — category limits &amp; alerts</li>
             <li>✅ 📸 <b>Unlimited</b> AI Receipt Scanning</li>
-            <li>✅ Cloud DB backup</li>
-            <li>✅ Pro badge in bot</li>
+            <li>✅ 📝 <b>Unlimited</b> Manual Entries</li>
+            <li>✅ 📌 <b>Unlimited</b> Fixed Items</li>
+            <li>✅ 📊 <b>/stats</b> — spending trends</li>
+            <li>✅ 🎯 <b>/budget</b> — category limits</li>
+            <li>✅ 🌐 <b>Multi-Language</b> interfaces</li>
+            <li>✅ 🎭 <b>Custom AI Vibe</b> settings</li>
+            <li>✅ 🗄️ <b>Backup Channel</b> syncing</li>
+            <li>✅ 📁 <b>CSV/Excel</b> export reports</li>
+            <li>✅ ☁️ Secure cloud storage</li>
           </ul>
           <a href="https://t.me/NutSplitBot?start=landing"
             class="btn-primary" id="pro-cta">Get NutSplit Pro →</a>
-          <p class="plan-note">Subscribe directly inside Telegram.</p>
+          <p class="plan-note">Fast activation directly inside Telegram.</p>
         </div>
 
       </div>
@@ -261,14 +277,21 @@
           </p>
         </details>
         <details class="faq-item">
+          <summary>Does it support multiple languages?</summary>
+          <p>Yes! NutSplit supports English, Traditional Chinese (繁體中文), and Simplified Chinese (简体中文). You can change the language in /settings.</p>
+        </details>
+        <details class="faq-item">
           <summary>Is my data private?</summary>
           <p>On the self-hosted version the SQLite database lives on your own server. On Hosted Pro your data is stored
             on our secure VPS and never shared with third parties.</p>
         </details>
         <details class="faq-item">
-          <summary>What happens when I pay?</summary>
-          <p>After checkout you'll receive an email with instructions to send us your Telegram group ID. We'll activate
-            Pro within 24 hours (usually within minutes).</p>
+          <summary>What happens if I hit the monthly limit?</summary>
+          <p>Don't worry, your data is safe. You'll simply be prompted to upgrade to Pro for unlimited usage, or you can wait until the limits reset on the 1st of next month.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How do I upgrade to Pro?</summary>
+          <p>Run the /upgrade command inside @NutSplitBot or tap the "Get Pro" button in any feature limit notification. Activation is near-instant.</p>
         </details>
         <details class="faq-item">
           <summary>Can I cancel anytime?</summary>

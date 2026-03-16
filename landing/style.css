@@ -370,6 +370,7 @@ h6,
   padding: 32px;
   box-shadow: 0 8px 0 var(--border);
   transition: transform .2s, box-shadow .2s;
+  position: relative; /* For the new-badge positioning */
 }
 
 .feature-card:hover {
@@ -400,6 +401,21 @@ h6,
   color: var(--muted);
   font-size: 1rem;
   font-weight: 500;
+}
+
+.new-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--accent2);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 0 rgba(139, 92, 246, 0.3);
 }
 
 /* ── COMPARE ─────────────────────────────────────────── */
