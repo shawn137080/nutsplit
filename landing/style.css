@@ -829,17 +829,38 @@ h6,
 /* ── Animations ─────────────────────────────────────── */
 @media (max-width: 600px) {
   .hero h1 {
-    font-size: 2.0rem; /* Further reduced from 2.2rem */
+    font-size: 2.0rem;
     letter-spacing: -0.5px;
   }
   .btn-primary, .btn-ghost {
-    padding: 10px 20px; /* Reduced padding */
-    font-size: 0.95rem; /* Reduced font size */
+    padding: 10px 20px;
+    font-size: 0.95rem;
     border-width: 2px;
     box-shadow: 0 4px 0 var(--border), inset 0 -3px 0 rgba(0, 0, 0, 0.02);
   }
   .btn-primary {
     box-shadow: 0 4px 0 var(--accent-dark), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Navbar Refinement */
+  .nav-inner {
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .logo {
+    font-size: 1.1rem;
+  }
+  .nav-links {
+    gap: 12px;
+  }
+  .nav-links a {
+    font-size: 0.85rem;
+  }
+  .btn-nav {
+    padding: 6px 14px; /* Shrunk for mobile */
+    font-size: 0.85rem;
+    border-width: 1.5px;
+    box-shadow: 0 3px 0 var(--accent-dark);
   }
 }
 
