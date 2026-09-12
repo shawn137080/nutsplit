@@ -1,5 +1,6 @@
 [build]
-  publish = "landing"
+  command = "node build.js"
+  publish = "dist/landing"
 
 [[redirects]]
   from = "/*"
