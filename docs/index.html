@@ -13,6 +13,47 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🥜%3C/text%3E%3C/svg%3E" />
   
+  <!-- JSON-LD: Organization + WebSite + SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.nutsplit.com/#organization",
+        "name": "NutSplit",
+        "url": "https://www.nutsplit.com/",
+        "logo": "https://www.nutsplit.com/docs/mascot.png",
+        "sameAs": [
+          "https://t.me/NutSplitBot"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.nutsplit.com/#website",
+        "url": "https://www.nutsplit.com/docs/",
+        "name": "NutSplit Docs",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://www.nutsplit.com/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "NutSplit",
+        "url": "https://www.nutsplit.com/docs/",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Telegram",
+        "description": "Telegram bot for household expense splitting. AI receipt scanning, balances, budgets, and settlements.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "publisher": { "@id": "https://www.nutsplit.com/#organization" }
+      }
+    ]
+  }
+  </script>
+
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PLACEHOLDER"></script>
   <script>

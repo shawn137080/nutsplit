@@ -1,0 +1,18 @@
+# NutSplit
+> Telegram bot for shared expenses. AI receipt scanning, balances, budgets, settlements.
+
+## Pages
+- [Bean — Running Tab That Settles Itself](https://www.nutsplit.com/): the modern front door; tracks a running tab among roommates, couples, and travel buddies.
+- [NutSplit Docs](https://www.nutsplit.com/docs/): documentation for the Telegram expense-splitter bot.
+- [Bean Landing](https://www.nutsplit.com/landing/): alternative landing for the Bean app.
+- [Bean Pro](https://www.nutsplit.com/pro/): upgrade page for Pro features.
+
+## Key facts
+- Bot: https://t.me/NutSplitBot
+- Built by a solo founder; primary surface is Telegram.
+- Pages deployed via Netlify; the bean landing is at /, /landing/, /pro/, /moodboard/.
+- Languages: English.
+
+## Contact
+- Brand: NutSplit / Bean
+- Domain: nutsplit.com
